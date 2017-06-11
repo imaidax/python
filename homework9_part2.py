@@ -1,3 +1,4 @@
+
 import pickle
 def load_data():
     try:
@@ -6,45 +7,32 @@ def load_data():
         print('Opened Pickles')
         filename.close()
         return user_dir
-    except:
-        print('Opened Aux File')
-        filename=open('employee.dat','r')
-        user_dir={}
-        home_dir={}
-        for line in filename:
-            data=line.split(',')
-            if len(data)==5:
-                home_dir['Name']=data[0]
-                home_dir['Employee_ID']=data[1]
-                home_dir['Department']=data[2]
-                home_dir['Title']=data[3]
-                home_dir['Salary']=data[4]
-                user_dir[data[0]]=home_dir
-        return user_dir
-
-
-
+    except FileNotFoundError:
+        print('Loading Failed. Creating new file.')
+        return {}
+        
 def show_stats(user_dir):
     dept_temp={}
     emp_count = 0
-    dept_count = 0
-    for k in user_dir.keys():
-        print(user_dir[k])
-        emp_count += 1
-    for user_dir[
-    for dept not in user_dir['Department']:
-        user_dir[dept]=1
-        dept_count += 1
-    else:
-        user_dir['Department'] = user_dir['Department'] + 1
-        dept_count += 1
-    print(user_dir['Department'])
-        
+    for k,v in user_dir.items():
+        dep_name = user_dir[k]['Department']
 
+        if dep_name in dept_temp:
+            dept_temp[dep_name]['count']+=1
+        else:
+            dept_temp[dep_name] = {'count': 1}
+
+        emp_count += 1
+    for k,v in dept_temp.items():
+        print('Department {} has {} employees'.format(k, v['count']))
     print('The company has',emp_count,'employees.')
+
+    
 def add_employee(user_dir, Name, Employee_ID, Department, Title, Salary):
     if Name in user_dir:
         print("This employee already exists.")
+    if Employee_ID in user_dir:
+        print('This EID is already in use.')
     else:
        home_dir={}
        home_dir['Name']=Name
@@ -92,33 +80,36 @@ def save_data(user_dir):
 def main():
     user_dir=load_data()
     while(True):
-        print('1. Add an Employee')
-        print('2. Find an Employee (By Name)')
-        print('3. Find an Employee (By EID)')
-        print('4. Delete an Employee')
-        print('5. Display Statistics')
-        print('6. Exit')
-        menu=int(input('Enter your choice: '))
-        if(menu==1):
-            Name=input('Name:').capitalize()
-            Employee_ID=input('Employee_ID: ')
-            Department=input('Department: ')
-            Title=input('Title:')
-            Salary=input('Salary:')
-            user_dir=add_employee(user_dir, Name, Employee_ID, Department, Title, Salary)
-        elif(menu==2):
-            Name=input('Name: ').capitalize()
-            search_name(user_dir, Name)
-        elif(menu==3):
-            id=input('Please enter the employee ID to search: ')
-            search_id(user_dir, id)
-        elif(menu==4):
-            Name=input('Name:')
-            user_dir=delete_employee(user_dir, Name)
-        elif(menu==5):
-            show_stats(user_dir)
-        else:
-            save_data(user_dir)
-            break
-
+        try:
+            print('1. Add an Employee')
+            print('2. Find an Employee (By Name)')
+            print('3. Find an Employee (By EID)')
+            print('4. Delete an Employee')
+            print('5. Display Statistics')
+            print('6. Exit')
+            menu=int(input('Enter your choice: '))
+            if(menu==1):
+                Name=input('Name: ').capitalize()
+                Employee_ID=input('Employee_ID: ')
+                Department=input('Department: ')
+                Title=input('Title: ')
+                Salary=input('Salary: ')
+                user_dir=add_employee(user_dir, Name, Employee_ID, Department, Title, Salary)
+            elif(menu==2):
+                Name=input('Name: ').capitalize()
+                search_name(user_dir, Name)
+            elif(menu==3):
+                id=input('Please enter the employee ID to search: ')
+                search_id(user_dir, id)
+            elif(menu==4):
+                Name=input('Name: ')
+                user_dir=delete_employee(user_dir, Name)
+            elif(menu==5):
+                show_stats(user_dir)
+            else:
+                save_data(user_dir)
+                break
+        except ValueError:
+            print('Incorrect value, please try again.')
+    
 main()
